@@ -160,6 +160,9 @@
     </script>
 </head>
 <body>
+    <audio id="bgMusic" loop>
+    <source src="LANA MUSIC.mp3" type="audio/mpeg">
+</audio>
 
     <div id="loader">
         <div class="spinner"></div>
@@ -704,6 +707,13 @@
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
                     video.srcObject = stream;
+                    // Dán vào dòng 709
+video.onloadedmetadata = () => {
+    const audio = document.getElementById('bgMusic');
+    if (audio) {
+        audio.play().catch(e => console.log("Yêu cầu tương tác để phát nhạc"));
+    }
+};
                     video.addEventListener("loadeddata", predictWebcam);
                     debugInfo.innerText = "Webcam active. Show hand.";
                 } catch(e) {
@@ -804,17 +814,26 @@
 
             // Xử lý xoay theo tay
             if (STATE.mode === 'SCATTER' && STATE.hand.detected) {
-                const targetRotY = STATE.hand.x * Math.PI * 0.9; 
-                const targetRotX = STATE.hand.y * Math.PI * 0.25;
-                STATE.rotation.y += (targetRotY - STATE.rotation.y) * 3.0 * dt;
-                STATE.rotation.x += (targetRotX - STATE.rotation.x) * 3.0 * dt;
-            } else {
-                if(STATE.mode === 'TREE') {
-                    STATE.rotation.y += 0.3 * dt;
-                    STATE.rotation.x += (0 - STATE.rotation.x) * 2.0 * dt;
-                } else {
-                      STATE.rotation.y += 0.1 * dt; 
-                }
+              // Thay thế nội dung từ dòng 810 đến 814
+if (STATE.mode === 'SCATTER' && STATE.hand.detected) {
+    // Tự động phát nhạc khi AI thấy tay
+    const audio = document.getElementById('bgMusic');
+    if (audio && audio.paused) audio.play().catch(() => {});
+
+    // Logic xoay liên tục khi tay ở mép màn hình
+    if (STATE.hand.x < 0.2) {
+        STATE.rotation.y -= 0.01; // Xoay trái liên tục
+    } else if (STATE.hand.x > 0.8) {
+        STATE.rotation.y += 0.01; // Xoay phải liên tục
+    } else {
+        // Giữ nguyên logic xoay theo vị trí tay khi ở giữa
+        const targetRotY = STATE.hand.x * Math.PI * 0.9;
+        STATE.rotation.y += (targetRotY - STATE.rotation.y) * 3.0 * dt;
+    }
+    
+    const targetRotX = STATE.hand.y * Math.PI * 0.25;
+    STATE.rotation.x += (targetRotX - STATE.rotation.x) * 3.0 * dt;
+}
             }
 
             mainGroup.rotation.y = STATE.rotation.y;
