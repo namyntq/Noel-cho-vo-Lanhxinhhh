@@ -169,7 +169,7 @@
     <div id="canvas-container"></div>
 
     <div id="ui-layer">
-        <h1>BIN NA RECAP 2025</h1>
+        <h1>LANA RECAP 2025</h1>
         
         <div class="controls-wrapper">
             <div class="btn-group">
@@ -219,13 +219,13 @@
             },
             camera: { z: 50 },
             
-            preload: {
-                autoScanLocal: true,
-                scanCount: 200, // Số lượng tối đa
-                // Các định dạng file sẽ tự động quét (Bỏ HEIC)
-                extensions: ['jepg', 'jpg', 'png', 'webp', 'bmp'],
-                images: []
-            }
+           preload: {
+            autoScanLocal: true,
+            scanCount: 30, // Chỉ quét vừa đủ số lượng ảnh bạn có (ví dụ 30)
+            // Thêm 'JPEG' viết hoa vào để nhận diện file 21, 22...
+            extensions: ['jpeg', 'JPEG', 'jpg', 'png', 'webp'], 
+            images: [] // Đảm bảo mảng này hoàn toàn trống rỗng
+        },
         };
 
         const STATE = {
