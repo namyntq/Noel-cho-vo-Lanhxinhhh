@@ -268,40 +268,38 @@
         }
 
         // --- HỆ THỐNG LOAD ẢNH ĐA ĐỊNH DẠNG (MULTI-FORMAT LOADER) ---
-        function loadPredefinedImages() {
-            const loader = new THREE.TextureLoader();
-            
-            // 1. Load ảnh từ link online (Unsplash)
-            CONFIG.preload.images.forEach(url => {
-                loader.load(url, 
-                    (t) => { t.colorSpace = THREE.SRGBColorSpace; addPhotoToScene(t); },
-                    undefined,
-                    (e) => { console.log(`Skipped: ${url}`); }
-                );
+        // Dán vào dòng 270
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+       function loadPredefinedImages() {
+        const loader = new THREE.TextureLoader();
+        // Xáo trộn danh sách ảnh từ CONFIG để không bao giờ bị trùng
+        const shuffled = shuffleArray([...CONFIG.preload.images]);
+        
+        shuffled.forEach((url) => {
+            loader.load(url, (t) => {
+                t.colorSpace = THREE.SRGBColorSpace;
+                addPhotoToScene(t); 
             });
+        });
 
-            // 2. Load ảnh từ thư mục local (images/1.jpg, 2.png, ...)
-            if (CONFIG.preload.autoScanLocal) {
-                for (let i = 1; i <= CONFIG.preload.scanCount; i++) {
-                    // Thử load tất cả các định dạng cho phép
-                    CONFIG.preload.extensions.forEach(ext => {
-                        const path = `./images/${i}.${ext}`;
-                        
-                        loader.load(path, 
-                            (t) => { 
-                                t.colorSpace = THREE.SRGBColorSpace; 
-                                addPhotoToScene(t); 
-                                console.log(`Loaded: ${path}`);
-                            },
-                            undefined,
-                            (err) => { 
-                                // Lỗi do không tìm thấy file là bình thường, bỏ qua
-                            } 
-                        );
-                    });
-                }
+        // Tải ảnh từ thư mục local nếu có cấu hình
+        if (CONFIG.preload.autoScanLocal) {
+            for (let i = 1; i <= CONFIG.preload.scanCount; i++) {
+                CONFIG.preload.extensions.forEach(ext => {
+                    loader.load(`./images/${i}.${ext}`, (t) => {
+                        t.colorSpace = THREE.SRGBColorSpace;
+                        addPhotoToScene(t);
+                    }, undefined, () => {}); 
+                });
             }
         }
+    } // Dấu này đóng hàm loadPredefinedImages
 
         function initThree() {
             const container = document.getElementById('canvas-container');
@@ -707,7 +705,7 @@
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
                     video.srcObject = stream;
-                    // Dán vào dòng 709
+                    // Dán vào dòng 710
 video.onloadedmetadata = () => {
     const audio = document.getElementById('bgMusic');
     if (audio) {
